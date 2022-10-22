@@ -15,6 +15,8 @@ class ArticleCreate(ArticlBase):
 
 class Article(ArticleCreate):
         id : int
+        class config:
+                orm_mode = True
 
 
 
@@ -45,3 +47,5 @@ class CommentCreate(CommentBase):
 
 class Comment(CommentBase):
         id: int
+        class config:
+                orm_mode = True

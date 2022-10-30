@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class ArticlBase(BaseModel):
         body: str
         title: str
-        tags: List[str] = []
+        #tags: List[str] = []
         
 
 

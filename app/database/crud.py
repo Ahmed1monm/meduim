@@ -18,7 +18,7 @@ def get_user_by_id(id: int, db: Session):
 
 
 def create_user(db: Session, user: schemas.AutherCreate):
-        auther = models.Auther(**user)
+        auther = models.Auther(user)
         db.add(auther)
         db.commit()
         return auther
@@ -37,6 +37,13 @@ def get_article_by_id(db:Session,id: int ):
         if not article:
                 raise HTTPException(status_code=404, detail="Article not found")
         return article
+
+        
+def create_article(db: Session, article: schemas.ArticleCreate):
+        temp_article = models.Article(**article.dict())
+        db.add(temp_article)
+        db.commit()
+        return temp_article
                 
 
 def get_artilce_comments(db: Session, article_id: int):
@@ -48,11 +55,7 @@ def get_artilce_comments(db: Session, article_id: int):
         comments = db.query(models.Comment).filter(article_id == models.Comment.article_id).all()
         return comments
 
-def create_article(db: Session, article: schemas.ArticleCreate):
-        temp_article = models.Article(**article.dict())
-        db.add(temp_article)
-        db.commit()
-        return temp_article
+
 
 
 def create_comment(db: Session, comment: schemas.CommentCreate):

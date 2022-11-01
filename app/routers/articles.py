@@ -27,7 +27,7 @@ async def post_article(article: ArticleCreate, db: Session = Depends(get_db)):
 
 
 @article_route.get("/{article_id}")
-async def get_specefic_article(article_id: int, db: Session = Depends(get_db)):
+async def get_specific_article(article_id: int, db: Session = Depends(get_db)):
     article = get_article_by_id(db, article_id)
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")

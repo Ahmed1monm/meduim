@@ -27,7 +27,6 @@ class AutherBase(BaseModel):
     bio: str
 
 
-
 class AutherLogin(BaseModel):
     username: str
     password: str

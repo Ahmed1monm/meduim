@@ -62,7 +62,7 @@ def get_article_comments(db: Session, article_id: int):
 
 
 def create_comment(db: Session, comment: schemas.CommentCreate):
-    temp_comment = models.Comment(**comment.dict())
+    temp_comment: models.Comment = models.Comment(**comment.dict())
     db.add(temp_comment)
     db.commit()
     return temp_comment

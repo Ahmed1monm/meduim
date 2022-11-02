@@ -1,8 +1,8 @@
-from this import d
 from sqlalchemy.orm import Session
 from . import schemas, models
 from fastapi import HTTPException
-from  sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
+from ..dependencies import get_password_hash
 
 
 def get_user_by_username(username: str, db: Session):
@@ -10,6 +10,16 @@ def get_user_by_username(username: str, db: Session):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+def delete_user(u_id: int, db: Session):
+    try:
+        db.query(models.Auther).filter(models.Auther.id == u_id).delete()
+        return True
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=400, detail="Not deleted"
+        )
 
 
 def get_user_by_id(id: int, db: Session):
@@ -20,6 +30,8 @@ def get_user_by_id(id: int, db: Session):
 
 
 def create_user(db: Session, user: schemas.AutherCreate):
+    pass_hashing = get_password_hash(user.password)
+    user.password = pass_hashing
     auther = models.Auther(**user.dict())
     try:
         db.add(auther)
@@ -59,6 +71,16 @@ def get_article_comments(db: Session, article_id: int):
         db.query(models.Comment).filter(article_id == models.Comment.article_id).all()
     )
     return comments
+
+
+def delete_article(id: int, db: Session):
+    try:
+        db.query(models.Article).filter(models.Article.id == id).delete()
+        return True
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=400, detail="Not deleted"
+        )
 
 
 def create_comment(db: Session, comment: schemas.CommentCreate):

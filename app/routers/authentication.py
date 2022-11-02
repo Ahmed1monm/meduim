@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.database.crud import create_user
 from app.dependencies import authenticate_user, create_access_token
 from ..database.main import get_db
-from ..database import schemas
+from ..database import schemas, models
 
-
-auth_router = APIRouter(prefix="/authentication")
+auth_router = APIRouter(prefix="/authentication", tags=["Auth"])
 
 
 @auth_router.post("/register")
@@ -35,5 +35,21 @@ async def login(user: schemas.AutherLogin, db: Session = Depends(get_db)):
         {"sub": user.username},
         timedelta(minutes=120),
     )
-    return token
+    return {
+        "token": token
+    }
 
+
+@auth_router.delete("/delete-user")
+async def delete_user(id: int, db: Session = Depends(get_db)):
+
+    try:
+        var = db.query(models.Auther).filter(models.Auther.id == id).delete()
+        return {
+            "msg": "deleted",
+            "var": var
+        }
+    except SQLAlchemyError as e:
+        return {
+            "error": e
+        }

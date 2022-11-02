@@ -6,13 +6,12 @@ from jose import jwt, JWTError
 from typing import Union
 from datetime import datetime, timedelta
 
-
-from .database import models, crud, main
+from .database import models, crud
+from .database.main import get_db
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -30,10 +29,13 @@ def get_password_hash(password):
 def authenticate_user(db: Session, username: str, password: str):
     user = db.query(models.Auther).filter(models.Auther.username == username).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found. username is worng")
-    if not verify_password(password, user.password):
-        raise HTTPException(status_code=404, detail="User not found. password is worng")
-    return user
+        raise HTTPException(status_code=404, detail="User not found. username is wrong")
+
+    v_pass = verify_password(password, user.password)
+    if v_pass:
+        return user
+    else:
+        raise HTTPException(status_code=404, detail="User not found. password is wrong")
 
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
@@ -62,7 +64,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
 
-    user = crud.get_user_by_username(username, main.get_db)
+    user = crud.get_user_by_username(username, get_db)
     if not user:
         raise HTTPException(status_code=401, detail="Login again, invalid token")
     return user

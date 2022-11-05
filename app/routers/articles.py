@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from ..dependencies import get_current_user
 from ..database import models
 from ..database import crud
+from sqlalchemy.exc import SQLAlchemyError
 
 article_route = APIRouter(
     prefix="/articles",
@@ -37,18 +38,25 @@ async def get_specific_article(article_id: int, db: Session = Depends(get_db)):
     return {"data": article}
 
 
-@article_route.get("/your-articles")
-async def get_your_articles(user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+@article_route.get("/me/my-articles")
+async def get_your_articles(user: dict = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(
             detail="invalid token, login again",
             status_code=400
         )
-    articles = db.query(models.Article).filter(models.Article.auther_id == user.get("id")).all()
-    return {
-        "msg": "sucsses",
-        "data": articles
-    }
+    try:
+        temp_user = crud.get_user_by_username(user.get('username'), db)
+        articles = db.query(models.Article).filter(models.Article.auther_id == temp_user.id).all()
+        return {
+            "msg": "sucsses",
+            "data": articles
+        }
+    except SQLAlchemyError as e:
+        return {
+            "Error": e
+        }
 
 
 @article_route.delete("/delete")

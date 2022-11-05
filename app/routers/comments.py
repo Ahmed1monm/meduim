@@ -3,6 +3,7 @@ from ..database import schemas, models, crud
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from ..database.main import get_db
+from sqlalchemy.exc import SQLAlchemyError
 
 comments_router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -21,9 +22,17 @@ async def add_comment(comment: schemas.CommentCreate, db: Session = Depends(get_
         )
 
     n_comment = crud.create_comment(db, comment)
-    if not comment:
+    if not n_comment:
         raise HTTPException(status_code=400, detail="comment not added")
 
-    return {"comment": comment}
+    return {"comment": n_comment}
 
 
+@comments_router.delete('/delete-comment')
+async def delete_comment(id: int, db: Session = Depends(get_db)):
+    status = crud.delete_comment(db, id)
+    if status:
+        return {
+            'status': True,
+            'msg': "deleted"
+        }

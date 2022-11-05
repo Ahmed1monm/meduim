@@ -13,8 +13,13 @@ def get_user_by_username(username: str, db: Session):
 
 
 def delete_user(u_id: int, db: Session):
+    user = get_user_by_id(u_id, db)
+    if not user:
+        raise HTTPException(status_code=404, detail="user not found")
     try:
-        db.query(models.Auther).filter(models.Auther.id == u_id).delete()
+        # db.query(models.Auther).filter(models.Auther.id == u_id).delete()
+        db.delete(user)
+        db.commit()
         return True
     except SQLAlchemyError:
         raise HTTPException(
@@ -74,8 +79,13 @@ def get_article_comments(db: Session, article_id: int):
 
 
 def delete_article(id: int, db: Session):
+    article = get_article_by_id(db, id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
     try:
-        db.query(models.Article).filter(models.Article.id == id).delete()
+        db.delete(article)
+        db.commit()
+        # db.query(models.Article).filter(models.Article.id == id).delete()
         return True
     except SQLAlchemyError:
         raise HTTPException(
@@ -88,3 +98,24 @@ def create_comment(db: Session, comment: schemas.CommentCreate):
     db.add(temp_comment)
     db.commit()
     return temp_comment
+
+
+def get_comment_by_id(id: int, db: Session):
+    comment = db.query(models.Comment).filter(models.Comment.id == id).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    return comment
+
+
+def delete_comment(db: Session, id: int):
+    comment = get_comment_by_id(id, db)
+    if not comment:
+        raise HTTPException(detail="Comment not found, wrong id", status_code=404)
+    try:
+        db.delete(comment)
+        db.commit()
+        return True
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=400, detail=f'ERROR {e}')
+
+

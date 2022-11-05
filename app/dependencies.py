@@ -64,7 +64,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
 
-    user = crud.get_user_by_username(username, get_db)
+    user = crud.get_user_by_username(username, Depends(get_db))
     if not user:
         raise HTTPException(status_code=401, detail="Login again, invalid token")
     return user

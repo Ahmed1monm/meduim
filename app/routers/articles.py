@@ -53,7 +53,7 @@ async def get_your_articles(user: dict = Depends(get_current_user), db: Session 
 
 @article_route.delete("/delete")
 async def delete_article(id: int, db: Session = Depends(get_db)):
-    status = delete_article(id, db)
+    status = crud.delete_article(id, db)
     if status:
         return {
             "msg": "deleted"

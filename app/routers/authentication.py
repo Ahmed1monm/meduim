@@ -30,6 +30,7 @@ async def login(user: schemas.AutherLogin, db: Session = Depends(get_db)):
     logged_in_user = authenticate_user(db, user.username, user.password)
 
     if not logged_in_user:
+
         raise HTTPException(status_code=401, detail="user not found")
     token = create_access_token(
         {"sub": user.username},

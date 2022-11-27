@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.database.crud import create_article, get_article_by_id, get_all_articles
-from ..database.schemas import ArticleCreate
+from ..database.schemas import ArticleCreate, ArticlBase
 from ..database.main import get_db
 from sqlalchemy.orm import Session
 from ..dependencies import get_current_user
@@ -21,7 +21,10 @@ async def all_articles(db: Session = Depends(get_db)):
 
 
 @article_route.post("/add-article")
-async def post_article(article: ArticleCreate, db: Session = Depends(get_db)):
+async def post_article(article: ArticleCreate, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+    temp_user = crud.get_user_by_username(user.get("username"))
+    # TODO -- Cast article base to article create and pass base to create article with user id
+    # reformat
     if not article:
         raise HTTPException(status_code=400, detail="Article not posted")
     artic = create_article(db, article)

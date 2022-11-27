@@ -9,6 +9,7 @@ class ArticlBase(BaseModel):
 
 
 class ArticleCreate(ArticlBase):
+
     auther_id: int
 
 

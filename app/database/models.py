@@ -1,4 +1,4 @@
-from app.database.database import Base
+from .database import Base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -39,3 +39,9 @@ class Article(Base):
     auther_id = Column(Integer, ForeignKey("authers.id"))
     auther = relationship("Auther", back_populates="articles")
     comments = relationship("Comment", back_populates="articles")
+
+
+class Tag(Base):
+    __tablename__ = 'tags'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True)

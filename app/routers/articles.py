@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.database.crud import create_article, get_article_by_id, get_all_articles
+from app.database.crud import create_article, get_article_by_id
 from ..database.schemas import ArticleCreate, ArticlBase
 from ..database.main import get_db
 from sqlalchemy.orm import Session
@@ -21,13 +21,19 @@ async def all_articles(db: Session = Depends(get_db)):
 
 
 @article_route.post("/add-article")
-async def post_article(article: ArticleCreate, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
-    temp_user = crud.get_user_by_username(user.get("username"))
-    # TODO -- Cast article base to article create and pass base to create article with user id
-    # reformat
+async def post_article(article: ArticlBase, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+    temp_user = crud.get_user_by_username(user.get("username"), db)
+
     if not article:
         raise HTTPException(status_code=400, detail="Article not posted")
-    artic = create_article(db, article)
+
+    art_create = ArticleCreate(
+        title=article.title,
+        body=article.body,
+        auther_id=temp_user.id)
+
+    artic = create_article(db, art_create)
+
     if not artic:
         raise HTTPException(status_code=400, detail="Article not posted --")
     return {"msg": "Sucsses", "article added by title": artic.title}
@@ -63,7 +69,7 @@ async def get_your_articles(user: dict = Depends(get_current_user),
 
 
 @article_route.delete("/delete")
-async def delete_article(id: int, db: Session = Depends(get_db)):
+async def delete_article(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
     status = crud.delete_article(id, db)
     if status:
         return {

@@ -47,15 +47,14 @@ class Auther(AutherBase):
 
 class CommentBase(BaseModel):
     body: str
-    auther_id: int
     article_id: int
 
 
 class CommentCreate(CommentBase):
-    pass
+    auther_id: int
 
 
-class Comment(CommentBase):
+class Comment(CommentCreate):
     id: int
 
     class config:

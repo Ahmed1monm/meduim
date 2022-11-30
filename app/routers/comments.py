@@ -4,13 +4,17 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from ..database.main import get_db
 from sqlalchemy.exc import SQLAlchemyError
+from app.dependencies import get_current_user
 
 comments_router = APIRouter(prefix="/comments", tags=["comments"])
 
 
 @comments_router.post("/add-comment")
-async def add_comment(comment: schemas.CommentCreate, db: Session = Depends(get_db)):
-    user = db.query(models.Auther).filter(models.Auther.id == comment.auther_id).first()
+async def add_comment(comment: schemas.CommentBase, db: Session = Depends(get_db),
+                      user: dict = Depends(get_current_user)):
+    username = user.get("username")
+    temp_user = crud.get_user_by_username(username, db)
+
     article = db.query(models.Article).filter(models.Article.id == comment.article_id).first()
     if not user:
         raise HTTPException(
@@ -20,8 +24,13 @@ async def add_comment(comment: schemas.CommentCreate, db: Session = Depends(get_
         raise HTTPException(
             status_code=404, detail="article was deleted"
         )
+    comment_create = schemas.CommentCreate(
+        body=comment.body,
+        article_id=comment.article_id,
+        auther_id=temp_user.id
+    )
 
-    n_comment = crud.create_comment(db, comment)
+    n_comment = crud.create_comment(db, comment_create)
     if not n_comment:
         raise HTTPException(status_code=400, detail="comment not added")
 

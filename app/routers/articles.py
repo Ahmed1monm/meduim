@@ -1,11 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.database.crud import create_article, get_article_by_id
-from ..database.schemas import ArticleCreate, ArticlBase
-from ..database.main import get_db
+from app.database.schemas import ArticleCreate, ArticlBase
+from app.database.main import get_db
 from sqlalchemy.orm import Session
-from ..dependencies import get_current_user
-from ..database import models
-from ..database import crud
+from app.dependencies import AuthDepends
+from app.database import crud, models
 from sqlalchemy.exc import SQLAlchemyError
 
 article_route = APIRouter(
@@ -21,7 +20,8 @@ async def all_articles(db: Session = Depends(get_db)):
 
 
 @article_route.post("/add-article")
-async def post_article(article: ArticlBase, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+async def post_article(article: ArticlBase, db: Session = Depends(get_db),
+                       user: dict = Depends(AuthDepends.get_current_user)):
     temp_user = crud.get_user_by_username(user.get("username"), db)
 
     if not article:
@@ -48,7 +48,7 @@ async def get_specific_article(article_id: int, db: Session = Depends(get_db)):
 
 
 @article_route.get("/me/my-articles")
-async def get_your_articles(user: dict = Depends(get_current_user),
+async def get_your_articles(user: dict = Depends(AuthDepends.get_current_user),
                             db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(
@@ -69,7 +69,8 @@ async def get_your_articles(user: dict = Depends(get_current_user),
 
 
 @article_route.delete("/delete")
-async def delete_article(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+async def delete_article(id: int, db: Session = Depends(get_db),
+                         user: dict = Depends(AuthDepends.get_current_user)):
     status = crud.delete_article(id, db)
     if status:
         return {

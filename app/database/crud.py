@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
-from . import schemas, models
+from app.database import schemas, models
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
-from ..dependencies import get_password_hash
+from app.dependencies import AuthDepends
 
 
 def get_user_by_username(username: str, db: Session):
@@ -35,7 +35,7 @@ def get_user_by_id(id: int, db: Session):
 
 
 def create_user(db: Session, user: schemas.AutherCreate):
-    pass_hashing = get_password_hash(user.password)
+    pass_hashing = AuthDepends.get_password_hash(user.password)
     user.password = pass_hashing
     auther = models.Auther(**user.dict())
     try:
@@ -117,5 +117,3 @@ def delete_comment(db: Session, id: int):
         return True
     except SQLAlchemyError as e:
         raise HTTPException(status_code=400, detail=f'ERROR {e}')
-
-

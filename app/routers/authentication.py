@@ -4,9 +4,9 @@ from datetime import timedelta
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.database.crud import create_user
-from app.dependencies import authenticate_user, create_access_token
-from ..database.main import get_db
-from ..database import schemas, crud
+from app.dependencies import AuthDepends
+from app.database.main import get_db
+from app.database import schemas, crud
 
 auth_router = APIRouter(prefix="/authentication", tags=["Auth"])
 
@@ -18,7 +18,7 @@ async def register_user(user: schemas.AutherCreate, db: Session = Depends(get_db
         raise HTTPException(
             status_code=404, detail="user not registered, data is not valid"
         )
-    token = create_access_token(
+    token = AuthDepends.create_access_token(
         {"sub": new_user.username}, expires_delta=timedelta(hours=120)
     )
 
@@ -27,12 +27,12 @@ async def register_user(user: schemas.AutherCreate, db: Session = Depends(get_db
 
 @auth_router.post("/token")
 async def login(user: schemas.AutherLogin, db: Session = Depends(get_db)):
-    logged_in_user = authenticate_user(db, user.username, user.password)
+    logged_in_user = AuthDepends.authenticate_user(db, user.username, user.password)
 
     if not logged_in_user:
 
         raise HTTPException(status_code=401, detail="user not found")
-    token = create_access_token(
+    token = AuthDepends.create_access_token(
         {"sub": user.username},
         timedelta(hours=120),
     )

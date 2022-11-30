@@ -1,17 +1,16 @@
 from fastapi import APIRouter, HTTPException
-from ..database import schemas, models, crud
+from app.database import schemas, models, crud
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from ..database.main import get_db
-from sqlalchemy.exc import SQLAlchemyError
-from app.dependencies import get_current_user
+from app.database.main import get_db
+from app.dependencies import AuthDepends
 
 comments_router = APIRouter(prefix="/comments", tags=["comments"])
 
 
 @comments_router.post("/add-comment")
 async def add_comment(comment: schemas.CommentBase, db: Session = Depends(get_db),
-                      user: dict = Depends(get_current_user)):
+                      user: dict = Depends(AuthDepends.get_current_user)):
     username = user.get("username")
     temp_user = crud.get_user_by_username(username, db)
 

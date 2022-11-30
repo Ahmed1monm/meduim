@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from .routers.articles import article_route
-from .routers.authentication import auth_router
-from .routers.comments import comments_router
+from app.routers.comments import comments_router
+from app.routers.authentication import auth_router
+from app.routers.articles import article_route
 
 app = FastAPI()
 

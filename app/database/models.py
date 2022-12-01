@@ -45,3 +45,20 @@ class Tag(Base):
     __tablename__ = 'tags'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
+
+
+# class ArticleToTags(Base):
+#     __tablename__ = 'article_to_tags'
+#     __table_args__ = {'extend_existing': True}
+#     id = Column(Integer, primary_key=True, index=True)
+#
+#     article_id = Column(Integer, ForeignKey("articles.id")),
+#     tag_id = Column(Integer, ForeignKey("tags.id")),
+#
+#
+# class AuthorsToTags(Base):
+#     __tablename__ = 'article_to_tags'
+#     __table_args__ = {'extend_existing': True}
+#     id = Column(Integer, primary_key=True, index=True)
+#     author_id = Column(Integer, ForeignKey("authers.id")),
+#     tag_id = Column(Integer, ForeignKey("tags.id")),

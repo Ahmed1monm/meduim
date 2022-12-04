@@ -117,3 +117,16 @@ def delete_comment(db: Session, id: int):
         return True
     except SQLAlchemyError as e:
         raise HTTPException(status_code=400, detail=f'ERROR {e}')
+
+
+def get_articles_by_tag_id(db: Session, tag_id):
+
+    tag = db.query(models.Tag).filter(models.Tag.id == tag_id).first()
+    if not tag:
+        raise HTTPException(detail="tag not found, wrong id", status_code=404)
+    article_to_tag = db.query(models.ArticleToTags).filter(
+        tag.id == models.ArticleToTags.tag_id).first()
+    if not article_to_tag:
+        return [1, 2]
+    articles = db.query(models.Article).filter(models.Article.id == article_to_tag.article_id).all()
+    return articles

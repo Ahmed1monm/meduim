@@ -18,6 +18,7 @@ class Auther(Base):
     articles = relationship("Article", back_populates="auther")
 
 
+
 class Comment(Base):
     __tablename__ = "comments"
     id = Column(Integer, primary_key=True, index=True)
@@ -41,19 +42,22 @@ class Article(Base):
     comments = relationship("Comment", back_populates="articles")
 
 
+
 class Tag(Base):
     __tablename__ = 'tags'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
 
 
-# class ArticleToTags(Base):
-#     __tablename__ = 'article_to_tags'
-#     __table_args__ = {'extend_existing': True}
-#     id = Column(Integer, primary_key=True, index=True)
-#
-#     article_id = Column(Integer, ForeignKey("articles.id")),
-#     tag_id = Column(Integer, ForeignKey("tags.id")),
+class ArticleToTags(Base):
+    __tablename__ = 'article_to_tags'
+    # __table_args__ = {'extend_existing': True}
+    id = Column(Integer, primary_key=True, index=True)
+
+    article_id = Column(Integer, ForeignKey("articles.id")),
+    tag_id = Column(Integer, ForeignKey("tags.id")),
+
+
 #
 #
 # class AuthorsToTags(Base):

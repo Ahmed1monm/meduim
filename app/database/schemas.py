@@ -5,11 +5,9 @@ from pydantic import BaseModel
 class ArticlBase(BaseModel):
     body: str
     title: str
-    # tags: List[str] = []
 
 
 class ArticleCreate(ArticlBase):
-
     auther_id: int
 
 
@@ -59,3 +57,17 @@ class Comment(CommentCreate):
 
     class config:
         orm_mode = True
+
+
+class ArticleToTagsBasic:
+    article_id: int
+    tag_id: int
+
+
+class ArticleToTags(ArticleToTagsBasic):
+    id: int
+
+
+class TagBasic:
+    id: int
+    name: str

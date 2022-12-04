@@ -81,3 +81,12 @@ async def delete_article(id: int, db: Session = Depends(get_db),
             detail="not deleted",
             status_code=500
         )
+
+
+@article_route.get('/tag/{tag_id}')
+async def filter_articles_by_tag(tag_id: int, db: Session = Depends(get_db)):
+    articles = crud.get_articles_by_tag_id(db, tag_id)
+    return {
+        'msg': 'success',
+        'data': articles
+    }
